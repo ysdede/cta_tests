@@ -1,6 +1,6 @@
 import datetime
 
-from jesse.strategies import Strategy, cached
+from jesse.strategies import Strategy
 
 import custom_indicators as cta
 
@@ -20,11 +20,6 @@ tick =
         self.pineplot = """
 plot(tick, color=color.lime, style=plot.style_line, linewidth=3)
                 """
-
-    # @property
-    # @cached
-    # def bb(self):
-    #     return cta.bb(self.candles, 20, 'close', 2.0, True)
 
     def should_long(self) -> bool:
         upper = cta.bb(self.candles, 20, 'close', 2.0, True).upper
