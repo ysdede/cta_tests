@@ -5,28 +5,25 @@ from jesse.strategies import Strategy
 import custom_indicators as cta
 
 
-class BBRTest(Strategy):
+class OTTTest(Strategy):
     def __init__(self):
         super().__init__()
         self.ts = None
         self.output = None
         self.pinescript = f"""//@version=4
-study("BBR TEST", precision=2)
+study("OTT TEST", precision=2, overlay=true)
 
 
 tick =
 """
 
         self.pineplot = """
-band1 = hline(1, "Overbought", color=#787B86, linestyle=hline.style_dashed)
-band0 = hline(0, "Oversold", color=#787B86, linestyle=hline.style_dashed)
-fill(band1, band0, color=color.rgb(38, 166, 154, 90), title="Background")
 plot(tick, color=color.lime, style=plot.style_line, linewidth=1)
                 """
 
     def should_long(self) -> bool:
-        ratio = cta.bbr(self.candles, 20, 'close', 2.0, True).ratio
-        value = round(float(ratio[-1]), 2)
+        ott = cta.ott(self.candles, sequential=True).ott
+        value = round(float(ott[-1]), 2)
 
         epoch = self.current_candle[0] / 1000
         self.ts = datetime.datetime.utcfromtimestamp(epoch).strftime('%Y-%m-%d %H:%M')
@@ -36,7 +33,7 @@ plot(tick, color=color.lime, style=plot.style_line, linewidth=1)
         hour = int(datetime.datetime.utcfromtimestamp(epoch).strftime('%H'))
 
         self.pinescript = self.pinescript + f'\n     year == {year} and month == {month} and dayofmonth == {day} and hour == {hour} ? {value}: '
-        self.output = ratio
+        self.output = ott
         return False
 
     def terminate(self):
@@ -48,7 +45,7 @@ plot(tick, color=color.lime, style=plot.style_line, linewidth=1)
         self.pinescript = self.pinescript + 'na\n'
         self.pinescript = self.pinescript + self.pineplot
 
-        f = open(f"bbr.pine", "w")
+        f = open(f"ott.pine", "w")
         f.write(self.pinescript)
         f.close()
 
